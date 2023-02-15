@@ -21,6 +21,7 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // configCmd represents the config command
@@ -49,7 +50,6 @@ we want to collect product prices.`,
 				}
 			}
 		}
-
 	},
 }
 
@@ -98,9 +98,15 @@ func asking() {
 		return
 	}
 
+	pass := conf.Pass
+	passHash, err := HashPassword(pass)
+	if err != nil {
+		log.Printf("Can't hash password: %s", err)
+	}
+
 	viper.Set("name", conf.Name)
 	viper.Set("login", conf.Login)
-	viper.Set("pass", conf.Pass)
+	viper.Set("pass", passHash)
 	viper.Set("User", conf.User)
 	viper.Set("searchpage", conf.SearchPage)
 	if err = viper.WriteConfig(); err != nil {
@@ -128,11 +134,10 @@ func setup() (Config, bool) {
 				log.Printf("Can't create config file: %s", err)
 			}
 			return conf, false
-		} else {
-			// Config file was found but another error was produced
-			log.Printf("Occur an error when trying read config file: %s", err)
-			return conf, false
 		}
+		// Config file was found but another error was produced
+		log.Printf("Occur an error when trying read config file: %s", err)
+		return conf, false
 	}
 
 	conf.Name = viper.GetString("name")
@@ -140,7 +145,6 @@ func setup() (Config, bool) {
 	conf.User = viper.GetString("user")
 	conf.Pass = viper.GetString("pass")
 	conf.SearchPage = viper.GetString("searchpage")
-
 	return conf, true
 }
 
@@ -168,4 +172,14 @@ func currentData(conf Config) bool {
 	}
 
 	return actual
+}
+
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+
+func CheckPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
