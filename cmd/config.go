@@ -19,10 +19,12 @@ import (
 	"log"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/jackgris/goscrapy-cli/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"golang.org/x/crypto/bcrypt"
 )
+
+var KEY string
 
 // configCmd represents the config command
 var configCmd = &cobra.Command{
@@ -34,6 +36,11 @@ we want to collect product prices.`,
 		var conf Config
 		var ok bool
 
+		err := viper.BindEnv("GOSCRAPY_KEY")
+		if err != nil {
+			log.Fatalln("Getting GOSCRAPY_KEY: ", err)
+		}
+		KEY = viper.GetString("GOSCRAPY_KEY")
 		viper.SetConfigName("config")
 		viper.SetConfigType("yaml")
 		viper.AddConfigPath(".")
@@ -44,7 +51,7 @@ we want to collect product prices.`,
 				asking()
 			} else {
 				if currentData(conf) {
-					log.Println("We need start scraping, conf data: ", conf)
+					log.Println("All data is right, you can start web scraping")
 				} else {
 					asking()
 				}
@@ -99,7 +106,7 @@ func asking() {
 	}
 
 	pass := conf.Pass
-	passHash, err := HashPassword(pass)
+	passHash, err := util.Encrypt(pass, KEY)
 	if err != nil {
 		log.Printf("Can't hash password: %s", err)
 	}
@@ -172,14 +179,4 @@ func currentData(conf Config) bool {
 	}
 
 	return actual
-}
-
-func HashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	return string(bytes), err
-}
-
-func CheckPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
 }
