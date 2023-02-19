@@ -5,10 +5,23 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"io"
+	"log"
+	"os"
 
 	"golang.org/x/crypto/bcrypt"
 )
+
+func ConfigFolderCreate() {
+	path := "config"
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		err := os.Mkdir(path, os.ModePerm)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+}
 
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)

@@ -16,9 +16,13 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"log"
+	"os"
 
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/jackgris/goscrapy-cli/util"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // saveCmd represents the save command
@@ -27,7 +31,8 @@ var saveCmd = &cobra.Command{
 	Short: "With this you have the option of save multiple wholesaler data",
 	Long:  `This will help you having differents setup for different wholesalers, so you will have the option of choose the wholesaler who you want to scrape with the config command.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("save called")
+		util.ConfigFolderCreate()
+		saveWholesalerData()
 	},
 }
 
@@ -43,4 +48,39 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// saveCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func saveWholesalerData() {
+
+	var conf Config
+	// perform the questions
+	err := survey.Ask(wholesalerQs, &conf)
+	if err != nil {
+		log.Printf("Error when get prompt input: %s", err.Error())
+		return
+	}
+
+	KEY = os.Getenv("GOSCRAPY_KEY")
+	if KEY == "" {
+		log.Fatalln("You need setup the env variable GOSCRAPY_KEY in your terminal")
+	}
+
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("config/")
+
+	pass := conf.Pass
+	passHash, err := util.Encrypt(pass, KEY)
+	if err != nil {
+		log.Printf("Can't hash password: %s", err)
+	}
+
+	viper.SetConfigName(conf.Name)
+	viper.Set("name", conf.Name)
+	viper.Set("login", conf.Login)
+	viper.Set("pass", passHash)
+	viper.Set("User", conf.User)
+	viper.Set("searchpage", conf.SearchPage)
+	if err = viper.SafeWriteConfig(); err != nil {
+		log.Printf("Error while write config file: %s", err)
+	}
 }
