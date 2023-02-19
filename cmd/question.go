@@ -53,6 +53,24 @@ var wholesalerQs = []*survey.Question{
 	},
 }
 
+// question for update fields of wholesalers
+var updateDataQs = []*survey.Question{
+	{
+		Name: "field",
+		Prompt: &survey.Select{
+			Message: "Choose the field to update:",
+			Options: []string{"login", "user", "pass", "searhpage"},
+			Default: "login",
+		},
+	},
+	{
+		Name:      "value",
+		Prompt:    &survey.Input{Message: "What is the value?"},
+		Validate:  survey.Required,
+		Transform: survey.Title,
+	},
+}
+
 // askingWholesalerData collect data from user about wholesaler
 func askingWholesalerData() {
 	var conf Config
@@ -74,6 +92,47 @@ func askingWholesalerData() {
 	viper.Set("pass", passHash)
 	viper.Set("User", conf.User)
 	viper.Set("searchpage", conf.SearchPage)
+	if err = viper.WriteConfig(); err != nil {
+		log.Printf("Error while write config file: %s", err)
+	}
+}
+
+type Update struct {
+	Field string
+	Value string
+}
+
+func askFieldToUpdate(name string) {
+
+	KEY = os.Getenv("GOSCRAPY_KEY")
+	if KEY == "" {
+		log.Fatalln("You need setup the env variable GOSCRAPY_KEY in your terminal")
+	}
+
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("config/")
+	viper.SetConfigName(name)
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Can't read the config file %s", err)
+	}
+
+	var update Update
+	// perform the questions
+	err := survey.Ask(updateDataQs, &update)
+	if err != nil {
+		log.Printf("Error when get prompt input: %s", err.Error())
+		return
+	}
+
+	if update.Field == "pass" {
+		passHash, err := util.Encrypt(update.Value, KEY)
+		if err != nil {
+			log.Printf("Can't hash password: %s", err)
+		}
+		update.Value = passHash
+	}
+
+	viper.Set(update.Field, update.Value)
 	if err = viper.WriteConfig(); err != nil {
 		log.Printf("Error while write config file: %s", err)
 	}

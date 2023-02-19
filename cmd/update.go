@@ -16,8 +16,9 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"log"
 
+	"github.com/jackgris/goscrapy-cli/util"
 	"github.com/spf13/cobra"
 )
 
@@ -28,20 +29,14 @@ var updateCmd = &cobra.Command{
 	Long: `With this command, you can update data from wholesalers who already have been saved in yaml files
 in the config folder. You can choose one wholesaler and one field and update his value.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("update called")
+		util.ConfigFolderCreate()
+		names := util.GetNameFilesConfig()
+		// FIXME we need to use the name to ask the user what file want to update
+		log.Println(names)
+		askFieldToUpdate("Ahora")
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(updateCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// updateCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// updateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

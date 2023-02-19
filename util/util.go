@@ -13,6 +13,23 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+func GetNameFilesConfig() []string {
+	entries, err := os.ReadDir("config")
+	if err != nil {
+		log.Fatalf("Can't files from config folder %s", err)
+	}
+	var names []string
+	for _, entry := range entries {
+		info, err := entry.Info()
+		if err != nil {
+			log.Fatalf("Error whiles reading files %s", err)
+		}
+		names = append(names, info.Name())
+	}
+
+	return names
+}
+
 func ConfigFolderCreate() {
 	path := "config"
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
