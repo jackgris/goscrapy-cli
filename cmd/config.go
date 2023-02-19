@@ -19,12 +19,9 @@ import (
 	"log"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/jackgris/goscrapy-cli/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
-
-var KEY string
 
 // configCmd represents the config command
 var configCmd = &cobra.Command{
@@ -36,24 +33,17 @@ we want to collect product prices.`,
 		var conf Config
 		var ok bool
 
-		err := viper.BindEnv("GOSCRAPY_KEY")
-		if err != nil {
-			log.Fatalln("Getting GOSCRAPY_KEY: ", err)
-		}
-		KEY = viper.GetString("GOSCRAPY_KEY")
-		viper.SetConfigName("config")
-		viper.SetConfigType("yaml")
-		viper.AddConfigPath(".")
+		setupEnv()
 
 		if conf, ok = setup(); ok {
 
 			if ok := checkData(conf); !ok {
-				asking()
+				askingWholesalerData()
 			} else {
 				if currentData(conf) {
 					log.Println("All data is right, you can start web scraping")
 				} else {
-					asking()
+					askingWholesalerData()
 				}
 			}
 		}
@@ -62,63 +52,6 @@ we want to collect product prices.`,
 
 func init() {
 	rootCmd.AddCommand(configCmd)
-}
-
-// the questions to ask
-var qs = []*survey.Question{
-	{
-		Name:      "name",
-		Prompt:    &survey.Input{Message: "Enter wholesaler name:"},
-		Validate:  survey.Required,
-		Transform: survey.Title,
-	},
-	{
-		Name:      "login",
-		Prompt:    &survey.Input{Message: "Enter login URL:"},
-		Validate:  survey.Required,
-		Transform: survey.Title,
-	},
-	{
-		Name:     "user",
-		Prompt:   &survey.Input{Message: "Enter user name or email:"},
-		Validate: survey.Required,
-	},
-	{
-		Name:     "pass",
-		Prompt:   &survey.Password{Message: "Enter the password:"},
-		Validate: survey.Required,
-	},
-	{
-		Name:     "searchpage",
-		Prompt:   &survey.Input{Message: "Enter URL where are the products:"},
-		Validate: survey.Required,
-	},
-}
-
-// asking collect data from user
-func asking() {
-	var conf Config
-	// perform the questions
-	err := survey.Ask(qs, &conf)
-	if err != nil {
-		log.Printf("Error when get prompt input: %s", err.Error())
-		return
-	}
-
-	pass := conf.Pass
-	passHash, err := util.Encrypt(pass, KEY)
-	if err != nil {
-		log.Printf("Can't hash password: %s", err)
-	}
-
-	viper.Set("name", conf.Name)
-	viper.Set("login", conf.Login)
-	viper.Set("pass", passHash)
-	viper.Set("User", conf.User)
-	viper.Set("searchpage", conf.SearchPage)
-	if err = viper.WriteConfig(); err != nil {
-		log.Printf("Error while write config file: %s", err)
-	}
 }
 
 type Config struct {
