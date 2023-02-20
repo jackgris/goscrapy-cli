@@ -25,10 +25,10 @@ import (
 
 // configCmd represents the config command
 var configCmd = &cobra.Command{
-	Use:   "config",
+	Use:   "setup",
 	Short: "Configure necessary data for login web page and collect prices",
 	Long: `With this command you can load the data needed for login in the web page where
-we want to collect product prices.`,
+we want to collect product prices. Choosing between the wholesaler saved before and stored in the config folder.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var conf Config
 		var ok bool
