@@ -102,6 +102,37 @@ type Update struct {
 	Value string
 }
 
+func askForWholesaleUpdate(files []string) string {
+	var name string
+	var names []string
+
+	for _, file := range files {
+		fileName := util.FileNameWithoutExtSliceNotation(file)
+		names = append(names, fileName)
+	}
+
+	// question for update fields of wholesalers
+	var chooseWSalerQs = []*survey.Question{
+		{
+			Name: "name",
+			Prompt: &survey.Select{
+				Message: "Choose the name of the wholesaler to update:",
+				Options: names,
+				Default: "",
+			},
+		},
+	}
+
+	// perform the questions
+	err := survey.Ask(chooseWSalerQs, &name)
+	if err != nil {
+		log.Printf("Error when get prompt input: %s", err.Error())
+		return ""
+	}
+
+	return name
+}
+
 func askFieldToUpdate(name string) {
 
 	KEY = os.Getenv("GOSCRAPY_KEY")

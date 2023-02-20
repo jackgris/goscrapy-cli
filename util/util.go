@@ -9,9 +9,14 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 
 	"golang.org/x/crypto/bcrypt"
 )
+
+func FileNameWithoutExtSliceNotation(fileName string) string {
+	return fileName[:len(fileName)-len(filepath.Ext(fileName))]
+}
 
 func GetNameFilesConfig() []string {
 	entries, err := os.ReadDir("config")

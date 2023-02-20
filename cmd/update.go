@@ -31,9 +31,13 @@ in the config folder. You can choose one wholesaler and one field and update his
 	Run: func(cmd *cobra.Command, args []string) {
 		util.ConfigFolderCreate()
 		names := util.GetNameFilesConfig()
-		// FIXME we need to use the name to ask the user what file want to update
-		log.Println(names)
-		askFieldToUpdate("Ahora")
+		name := askForWholesaleUpdate(names)
+
+		if name == "" {
+			log.Println("You haven't any wholesaler saved")
+			return
+		}
+		askFieldToUpdate(name)
 	},
 }
 
