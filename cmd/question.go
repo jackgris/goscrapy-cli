@@ -102,6 +102,52 @@ type Update struct {
 	Value string
 }
 
+func askYouSureRemove(file string) error {
+	name := util.FileNameWithoutExtSliceNotation(file)
+
+	var askSure = &survey.Confirm{
+		Message: "Are you sure you want to remove " + name + " data?",
+	}
+	var sure bool
+	// perform the questions
+	err := survey.AskOne(askSure, &sure)
+	if err != nil {
+		return err
+	}
+
+	if sure {
+		err := util.RemoveFile("config/" + file)
+		return err
+	}
+
+	return nil
+}
+
+func askForRemoveWholesale(files []string) string {
+	var file string
+
+	// question for update fields of wholesalers
+	var chooseWSalerQs = []*survey.Question{
+		{
+			Name: "name",
+			Prompt: &survey.Select{
+				Message: "Choose the wholesaler you want to remove:",
+				Options: files,
+				Default: "",
+			},
+		},
+	}
+
+	// perform the questions
+	err := survey.Ask(chooseWSalerQs, &file)
+	if err != nil {
+		log.Printf("Error when get prompt input: %s", err.Error())
+		return ""
+	}
+
+	return file
+}
+
 func askForWholesaleUpdate(files []string) string {
 	var name string
 	var names []string
@@ -116,7 +162,7 @@ func askForWholesaleUpdate(files []string) string {
 		{
 			Name: "name",
 			Prompt: &survey.Select{
-				Message: "Choose the name of the wholesaler to update:",
+				Message: "Choose the name of the wholesaler:",
 				Options: names,
 				Default: "",
 			},

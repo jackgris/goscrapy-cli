@@ -18,6 +18,10 @@ func FileNameWithoutExtSliceNotation(fileName string) string {
 	return fileName[:len(fileName)-len(filepath.Ext(fileName))]
 }
 
+func RemoveFile(fileName string) error {
+	return os.Remove(fileName)
+}
+
 func GetNameFilesConfig() []string {
 	entries, err := os.ReadDir("config")
 	if err != nil {
