@@ -72,29 +72,47 @@ var updateDataQs = []*survey.Question{
 }
 
 // askingWholesalerData collect data from user about wholesaler
-func askingWholesalerData() {
+func askingWholesalerData(name string) error {
 	var conf Config
-	// perform the questions
-	err := survey.Ask(wholesalerQs, &conf)
-	if err != nil {
-		log.Printf("Error when get prompt input: %s", err.Error())
-		return
+	var err error
+	viper.AddConfigPath("config/")
+	viper.SetConfigName(name)
+	if err = viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			log.Fatalf("Wholesaler file not found: %s", err)
+		}
+		// Config file was found but another error was produced
+		log.Fatalf("Problems reading wholesaler data: %s", err)
 	}
 
-	pass := conf.Pass
-	passHash, err := util.Encrypt(pass, KEY)
-	if err != nil {
-		log.Printf("Can't hash password: %s", err)
+	conf.Name = viper.GetString("name")
+	conf.Login = viper.GetString("login")
+	conf.User = viper.GetString("user")
+	conf.Pass = viper.GetString("pass")
+	conf.SearchPage = viper.GetString("searchpage")
+
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			log.Fatalf("Wholesaler file not found: %s", err)
+		}
+		// Config file was found but another error was produced
+		log.Fatalf("Problems reading wholesaler data: %s", err)
 	}
 
 	viper.Set("name", conf.Name)
 	viper.Set("login", conf.Login)
-	viper.Set("pass", passHash)
+	viper.Set("pass", conf.Pass)
 	viper.Set("User", conf.User)
 	viper.Set("searchpage", conf.SearchPage)
 	if err = viper.WriteConfig(); err != nil {
 		log.Printf("Error while write config file: %s", err)
+		return err
 	}
+
+	return err
 }
 
 type Update struct {
@@ -123,7 +141,7 @@ func askYouSureRemove(file string) error {
 	return nil
 }
 
-func askForRemoveWholesale(files []string) string {
+func askForWholesale(files []string) string {
 	var file string
 
 	// question for update fields of wholesalers
@@ -131,16 +149,15 @@ func askForRemoveWholesale(files []string) string {
 		{
 			Name: "name",
 			Prompt: &survey.Select{
-				Message: "Choose the wholesaler you want to remove:",
+				Message: "Choose the wholesaler:",
 				Options: files,
-				Default: "",
+				Default: files[0],
 			},
 		},
 	}
 
 	// perform the questions
-	err := survey.Ask(chooseWSalerQs, &file)
-	if err != nil {
+	if err := survey.Ask(chooseWSalerQs, &file); err != nil {
 		log.Printf("Error when get prompt input: %s", err.Error())
 		return ""
 	}

@@ -19,6 +19,7 @@ import (
 	"log"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/jackgris/goscrapy-cli/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -37,13 +38,14 @@ we want to collect product prices. Choosing between the wholesaler saved before 
 
 		if conf, ok = setup(); ok {
 
+			log.Println("This is the wholesaler configured: ", conf.Name)
 			if ok := checkData(conf); !ok {
-				askingWholesalerData()
+				chooseWholesaler()
 			} else {
 				if currentData(conf) {
 					log.Println("All data is right, you can start web scraping")
 				} else {
-					askingWholesalerData()
+					chooseWholesaler()
 				}
 			}
 		}
@@ -52,6 +54,20 @@ we want to collect product prices. Choosing between the wholesaler saved before 
 
 func init() {
 	rootCmd.AddCommand(configCmd)
+}
+
+func chooseWholesaler() {
+	util.ConfigFolderCreate()
+	names := util.GetNameFilesConfig()
+	name := askForWholesale(names)
+	if name == "" {
+		log.Println("You need choose one wholesaler or save one before try to setup one.")
+		return
+	}
+
+	if err := askingWholesalerData(name); err != nil {
+		log.Fatalf("Can't setup the wholesaler data: %s", err)
+	}
 }
 
 type Config struct {

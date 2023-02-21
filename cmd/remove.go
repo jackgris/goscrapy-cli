@@ -30,7 +30,7 @@ var removeCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		util.ConfigFolderCreate()
 		names := util.GetNameFilesConfig()
-		name := askForRemoveWholesale(names)
+		name := askForWholesale(names)
 		if name == "" {
 			log.Println("You need choose one wholesaler or save one before try to remove one.")
 			return
