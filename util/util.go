@@ -8,11 +8,24 @@ import (
 	"errors"
 	"io"
 	"log"
+	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"golang.org/x/crypto/bcrypt"
 )
+
+func IsValidURL(urlStr string) bool {
+	u, err := url.Parse(urlStr)
+	return err == nil && u.Scheme != "" && u.Host != ""
+}
+
+func IsValidEmail(email string) bool {
+	regex := `^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`
+	match, _ := regexp.MatchString(regex, email)
+	return match
+}
 
 func FileNameWithoutExtSliceNotation(fileName string) string {
 	return fileName[:len(fileName)-len(filepath.Ext(fileName))]

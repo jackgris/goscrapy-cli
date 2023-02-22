@@ -31,15 +31,14 @@ var wholesalerQs = []*survey.Question{
 		Transform: survey.Title,
 	},
 	{
-		Name:      "login",
-		Prompt:    &survey.Input{Message: "Enter login URL:"},
-		Validate:  survey.Required,
-		Transform: survey.Title,
+		Name:     "login",
+		Prompt:   &survey.Input{Message: "Enter login URL:"},
+		Validate: urlValidator(),
 	},
 	{
 		Name:     "user",
 		Prompt:   &survey.Input{Message: "Enter user name or email:"},
-		Validate: survey.Required,
+		Validate: emailValidator(),
 	},
 	{
 		Name:     "pass",
@@ -49,7 +48,7 @@ var wholesalerQs = []*survey.Question{
 	{
 		Name:     "searchpage",
 		Prompt:   &survey.Input{Message: "Enter URL where are the products:"},
-		Validate: survey.Required,
+		Validate: urlValidator(),
 	},
 }
 
