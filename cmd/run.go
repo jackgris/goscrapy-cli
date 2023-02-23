@@ -16,8 +16,11 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"log"
+	"os"
 
+	"github.com/jackgris/goscrapy-cli/internal"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -28,20 +31,64 @@ var runCmd = &cobra.Command{
 	Long: `Once you configure all the necesary data for the wholesaler who you want scrape.
 Can run this command for start saving data, the default opcion is a JSON file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("run called")
+		var conf Config
+		var ok bool
+
+		setupEnv()
+
+		if conf, ok = setup(); !ok {
+			log.Fatalln("You need to setup the wholesaler data again")
+		}
+
+		log.Println("You will start scraping: ", conf.Name)
+
+		w := internal.Wholesalers{
+			Login:      conf.Login,
+			User:       conf.User,
+			Pass:       conf.Pass,
+			Searchpage: conf.SearchPage,
+			Name:       conf.Name,
+		}
+
+		file, err := os.OpenFile("products.json", os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			log.Fatalln("Error creating file:", err)
+		}
+		defer file.Close()
+
+		log := logrus.New()
+		log.SetLevel(logrus.InfoLevel)
+		log.SetFormatter(&logrus.TextFormatter{
+			FullTimestamp:          true,
+			TimestampFormat:        "2006-01-02 15:04:05",
+			ForceColors:            true,
+			DisableLevelTruncation: true,
+		})
+
+		if n, err := file.WriteString("["); err != nil {
+			log.Fatalln(n, err)
+		}
+
+		if err = internal.GetData(file, w, log); err != nil {
+			log.Fatalln(err)
+		}
+		// Remove the last character from the file, so we remove the last , we added before know
+		// we append the last element
+		if _, err = file.Seek(-2, 2); err != nil { // Set the file pointer to the last character
+			log.Fatalln(err)
+		}
+
+		if _, err = file.Write([]byte{}); err != nil {
+			log.Fatalln(err)
+		}
+
+		if n, err := file.WriteString("]"); err != nil {
+			log.Fatalln(n, err)
+		}
+
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(runCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// runCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// runCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
