@@ -202,7 +202,6 @@ func askForWholesaleUpdate(files []string) string {
 		fileName := util.FileNameWithoutExtSliceNotation(file)
 		names = append(names, fileName)
 	}
-
 	// question for update fields of wholesalers
 	var chooseWSalerQs = []*survey.Question{
 		{
@@ -210,7 +209,7 @@ func askForWholesaleUpdate(files []string) string {
 			Prompt: &survey.Select{
 				Message: "Choose the name of the wholesaler:",
 				Options: names,
-				Default: "",
+				Default: names[0],
 			},
 		},
 	}
@@ -221,7 +220,6 @@ func askForWholesaleUpdate(files []string) string {
 		log.Printf("Error when get prompt input: %s", err.Error())
 		return ""
 	}
-
 	return name
 }
 
