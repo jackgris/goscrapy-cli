@@ -48,8 +48,8 @@ Can run this command for start saving data, the default opcion is a JSON file.`,
 			Pass:         conf.Pass,
 			Searchpage:   conf.SearchPage,
 			Name:         conf.Name,
-			EndPhrase:    "No tenemos",
-			EndPhraseDiv: "div.text-center",
+			EndPhrase:    conf.EndPhrase,
+			EndPhraseDiv: conf.EndPhraseDiv,
 		}
 
 		file, err := os.OpenFile("products.json", os.O_CREATE|os.O_WRONLY, 0644)

@@ -70,6 +70,8 @@ func saveWholesalerData() {
 	viper.Set("pass", passHash)
 	viper.Set("User", conf.User)
 	viper.Set("searchpage", conf.SearchPage)
+	viper.Set("endphrase", conf.EndPhrase)
+	viper.Set("endphrasediv", conf.EndPhraseDiv)
 	if err = viper.SafeWriteConfig(); err != nil {
 		log.Printf("Error while write config file: %s", err)
 	}

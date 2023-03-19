@@ -71,11 +71,13 @@ func chooseWholesaler() {
 }
 
 type Config struct {
-	Name       string
-	Login      string
-	User       string
-	Pass       string
-	SearchPage string
+	Name         string
+	Login        string
+	User         string
+	Pass         string
+	SearchPage   string
+	EndPhrase    string
+	EndPhraseDiv string
 }
 
 // setup will check if you have the necessary data
@@ -101,6 +103,9 @@ func setup() (Config, bool) {
 	conf.User = viper.GetString("user")
 	conf.Pass = viper.GetString("pass")
 	conf.SearchPage = viper.GetString("searchpage")
+	conf.EndPhrase = viper.GetString("endphrase")
+	conf.EndPhraseDiv = viper.GetString("endphrasediv")
+
 	return conf, true
 }
 

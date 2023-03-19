@@ -65,6 +65,16 @@ var wholesalerQs = []*survey.Question{
 		Prompt:   &survey.Input{Message: "Enter URL where are the products:"},
 		Validate: urlValidator(),
 	},
+	{
+		Name:     "endphrase",
+		Prompt:   &survey.Input{Message: "Enter the phrase that you see when don't see any product:"},
+		Validate: survey.Required,
+	},
+	{
+		Name:     "endphrasediv",
+		Prompt:   &survey.Input{Message: "Enter the specific div where the end phrase appear:"},
+		Validate: survey.Required,
+	},
 }
 
 // question for update fields of wholesalers
@@ -104,6 +114,8 @@ func askingWholesalerData(name string) error {
 	conf.User = viper.GetString("user")
 	conf.Pass = viper.GetString("pass")
 	conf.SearchPage = viper.GetString("searchpage")
+	conf.EndPhrase = viper.GetString("endphrase")
+	conf.EndPhraseDiv = viper.GetString("endphrasediv")
 
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
@@ -121,6 +133,9 @@ func askingWholesalerData(name string) error {
 	viper.Set("pass", conf.Pass)
 	viper.Set("User", conf.User)
 	viper.Set("searchpage", conf.SearchPage)
+	viper.Set("endphrase", conf.EndPhrase)
+	viper.Set("endphrasediv", conf.EndPhraseDiv)
+
 	if err = viper.WriteConfig(); err != nil {
 		log.Printf("Error while write config file: %s", err)
 		return err
