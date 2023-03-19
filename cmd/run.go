@@ -43,11 +43,13 @@ Can run this command for start saving data, the default opcion is a JSON file.`,
 		log.Println("You will start scraping: ", conf.Name)
 
 		w := internal.Wholesalers{
-			Login:      conf.Login,
-			User:       conf.User,
-			Pass:       conf.Pass,
-			Searchpage: conf.SearchPage,
-			Name:       conf.Name,
+			Login:        conf.Login,
+			User:         conf.User,
+			Pass:         conf.Pass,
+			Searchpage:   conf.SearchPage,
+			Name:         conf.Name,
+			EndPhrase:    "No tenemos",
+			EndPhraseDiv: "div.text-center",
 		}
 
 		file, err := os.OpenFile("products.json", os.O_CREATE|os.O_WRONLY, 0644)

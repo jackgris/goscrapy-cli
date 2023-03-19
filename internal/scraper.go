@@ -55,11 +55,13 @@ type InventoryLevel struct {
 // Setup data
 // ///////////////////////////////////////////////////////////////////////////////////////
 type Wholesalers struct {
-	Login      string `json:"login"`
-	User       string `json:"user"`
-	Pass       string `json:"pass"`
-	Searchpage string `json:"searchpage"`
-	Name       string `json:"name"`
+	Login        string `json:"login"`
+	User         string `json:"user"`
+	Pass         string `json:"pass"`
+	Searchpage   string `json:"searchpage"`
+	Name         string `json:"name"`
+	EndPhrase    string `json:"endphrase"`
+	EndPhraseDiv string `json:"endphrasediv"`
 }
 
 type DBProduct struct {
@@ -106,12 +108,12 @@ func GetData(file *os.File, w Wholesalers, log *logrus.Logger) error {
 		goquerySelection := e.DOM
 
 		// Check here, there are or there are no products
-		goquerySelection.Find("div.text-center").Each(func(i int, el *goquery.Selection) {
+		goquerySelection.Find(w.EndPhraseDiv).Each(func(i int, el *goquery.Selection) {
 
 			if end {
 				return
 			}
-			not := "No tenemos"
+			not := w.EndPhrase
 			end = strings.Contains(el.Text(), not)
 		})
 
