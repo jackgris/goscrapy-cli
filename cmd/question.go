@@ -83,7 +83,7 @@ var updateDataQs = []*survey.Question{
 		Name: "field",
 		Prompt: &survey.Select{
 			Message: "Choose the field to update:",
-			Options: []string{"login", "user", "pass", "searhpage"},
+			Options: []string{"login", "user", "pass", "searhpage", "endphrase", "endphrasediv"},
 			Default: "login",
 		},
 	},
